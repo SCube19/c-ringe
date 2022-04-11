@@ -1,0 +1,23 @@
+Na 15 punktów
+  01 (trzy typy)                                          (check)
+  02 (literały, arytmetyka, porównania)                   (check)
+  03 (zmienne, przypisanie)                               (check)
+  04 (print)                                              (check)
+  05 (while, if)                                          (check)
+  06 (funkcje lub procedury, rekurencja)                  (check)
+  07 (przez zmienną / przez wartość / in/out)             (check)
+  08 (zmienne read-only i pętla for)                      (check)
+  Na 20 punktów
+  09 (przesłanianie i statyczne wiązanie)                 (check)
+  10 (obsługa błędów wykonania)                           (check)
+  11 (funkcje zwracające wartość)                         (check)
+  Na 30 punktów
+  12 (4) (statyczne typowanie)                            (check)
+  13 (2) (funkcje zagnieżdżone ze statycznym wiązaniem)   (check)
+  14 (1/2) (rekordy/listy/tablice/tablice wielowymiarowe)
+  15 (2) (krotki z przypisaniem) 
+  16 (1) (break, continue)                                (check)
+  17 (4) (funkcje wyższego rzędu, anonimowe, domknięcia)  (check)
+  18 (3) (generatory)
+
+Razem: 31 (30)

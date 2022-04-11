@@ -1,0 +1,44 @@
+C(ringe) Language © 
+
+A program is a string of statements without any need of main function.
+
+Every statement ends with a semicolon (;).
+
+Functions are defined by creating a variable of type fun, for example:
+
+immutable fun f = () -> int : {
+    return 5;
+};
+
+Which creates constant function that takes no input and returns an integer.
+
+Statements are:
+    - Block statement (standard c-style block {}) which encloses statements, defines scope and is often required
+    - Declaration statements which include :
+        - Standard c-style type identifier; definition
+        - Constant definition with syntax : immutable type identifier;
+    - Standard assigment statement
+    - Increment and decrement with syntax : inc identifier; dec identifier; respectively
+    - Standard return statement
+    - Standard if and if-else statements (if can be paired with non-block statement, if-else requires blocks)
+    - Standard while loop statement
+    - Range for loop with syntax : from identifier = expression to expression do ...
+    - Build-in print function
+    - Continue and break with syntax : skipit and exit respectively
+    - Expressions can be statements too
+
+Supported types:
+    - int
+    - char
+    - string 
+    - bool 
+    - fun
+    - void
+
+Expressions are:
+    - Literals for every type except void
+    - Lamba expressions (literal of type fun) with syntax : (args) -> (return type) : {function body}
+    - Standard function application
+    - Standard arithmetic operations (except modulo which is mod instead of %)
+    - Boolean arithmetic with syntax : (== as is), (!= as is not), (! as not), (&& as and), (|| as or)
+
