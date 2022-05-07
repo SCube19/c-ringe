@@ -40,14 +40,14 @@ The reserved words used in cringe are the following:
   | ``inc`` | ``int`` | ``is`` | ``mod``
   | ``not`` | ``or`` | ``print`` | ``ref``
   | ``return`` | ``skip`` | ``string`` | ``to``
-  | ``true`` | ``while`` |  |
+  | ``true`` | ``void`` | ``while`` |
 
 The symbols used in cringe are the following:
   | { | } | ; | =
-  | ( | ) | [ | ->
-  | ] | , | - | +
-  | * | / | < | <=
-  | > | >= |  |
+  | ( | ) | , | ->
+  | : | - | + | *
+  | / | < | <= | >
+  | >= |  |  |
 
 ===Comments===
 Single-line comments begin with //.Multiple-line comments are  enclosed with /* and */.
@@ -85,15 +85,10 @@ All other symbols are terminals.
   |  |  **|**  | ``char``
   |  |  **|**  | ``string``
   |  |  **|**  | ``bool``
-  |  |  **|**  | ``fun`` ``[`` //[ArgType]// ``->`` //RetType// ``]``
-  | //ArgType// | -> | //Type//
-  |  |  **|**  | ``ref`` //Type//
-  | //[ArgType]// | -> | **eps**
-  |  |  **|**  | //ArgType//
-  |  |  **|**  | //ArgType// ``,`` //[ArgType]//
-  | //RetType// | -> | //Type//
-  |  |  **|**  | **eps**
-  | //Arg// | -> | //ArgType// //Ident//
+  |  |  **|**  | ``void``
+  |  |  **|**  | ``fun``
+  | //Arg// | -> | //Type// //Ident//
+  |  |  **|**  | ``ref`` //Type// //Ident//
   | //[Arg]// | -> | **eps**
   |  |  **|**  | //Arg//
   |  |  **|**  | //Arg// ``,`` //[Arg]//
@@ -103,7 +98,7 @@ All other symbols are terminals.
   |  |  **|**  | //String//
   |  |  **|**  | ``true``
   |  |  **|**  | ``false``
-  |  |  **|**  | ``(`` //[Arg]// ``)`` ``->`` //RetType// //Block//
+  |  |  **|**  | ``(`` //[Arg]// ``)`` ``->`` //Type// ``:`` //Block//
   |  |  **|**  | //Ident// ``(`` //[Expr]// ``)``
   |  |  **|**  | ``(`` //Expr// ``)``
   | //Expr5// | -> | ``-`` //Expr6//

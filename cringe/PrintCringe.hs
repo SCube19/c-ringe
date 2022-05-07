@@ -183,26 +183,13 @@ instance Print (AbsCringe.Type' a) where
     AbsCringe.Char _ -> prPrec i 0 (concatD [doc (showString "char")])
     AbsCringe.Str _ -> prPrec i 0 (concatD [doc (showString "string")])
     AbsCringe.Bool _ -> prPrec i 0 (concatD [doc (showString "bool")])
-    AbsCringe.Fun _ argtypes rettype -> prPrec i 0 (concatD [doc (showString "fun"), doc (showString "["), prt 0 argtypes, doc (showString "->"), prt 0 rettype, doc (showString "]")])
-
-instance Print (AbsCringe.ArgType' a) where
-  prt i = \case
-    AbsCringe.Val _ type_ -> prPrec i 0 (concatD [prt 0 type_])
-    AbsCringe.Ref _ type_ -> prPrec i 0 (concatD [doc (showString "ref"), prt 0 type_])
-
-instance Print [AbsCringe.ArgType' a] where
-  prt _ [] = concatD []
-  prt _ [x] = concatD [prt 0 x]
-  prt _ (x:xs) = concatD [prt 0 x, doc (showString ","), prt 0 xs]
-
-instance Print (AbsCringe.RetType' a) where
-  prt i = \case
-    AbsCringe.NoVoid _ type_ -> prPrec i 0 (concatD [prt 0 type_])
-    AbsCringe.Void _ -> prPrec i 0 (concatD [])
+    AbsCringe.Void _ -> prPrec i 0 (concatD [doc (showString "void")])
+    AbsCringe.Fun _ -> prPrec i 0 (concatD [doc (showString "fun")])
 
 instance Print (AbsCringe.Arg' a) where
   prt i = \case
-    AbsCringe.Arg _ argtype id_ -> prPrec i 0 (concatD [prt 0 argtype, prt 0 id_])
+    AbsCringe.Arg _ type_ id_ -> prPrec i 0 (concatD [prt 0 type_, prt 0 id_])
+    AbsCringe.RefArg _ type_ id_ -> prPrec i 0 (concatD [doc (showString "ref"), prt 0 type_, prt 0 id_])
 
 instance Print [AbsCringe.Arg' a] where
   prt _ [] = concatD []
@@ -217,7 +204,7 @@ instance Print (AbsCringe.Expr' a) where
     AbsCringe.EString _ str -> prPrec i 6 (concatD [printString str])
     AbsCringe.ELitTrue _ -> prPrec i 6 (concatD [doc (showString "true")])
     AbsCringe.ELitFalse _ -> prPrec i 6 (concatD [doc (showString "false")])
-    AbsCringe.ELambda _ args rettype block -> prPrec i 6 (concatD [doc (showString "("), prt 0 args, doc (showString ")"), doc (showString "->"), prt 0 rettype, prt 0 block])
+    AbsCringe.ELambda _ args type_ block -> prPrec i 6 (concatD [doc (showString "("), prt 0 args, doc (showString ")"), doc (showString "->"), prt 0 type_, doc (showString ":"), prt 0 block])
     AbsCringe.EApp _ id_ exprs -> prPrec i 6 (concatD [prt 0 id_, doc (showString "("), prt 0 exprs, doc (showString ")")])
     AbsCringe.Neg _ expr -> prPrec i 5 (concatD [doc (showString "-"), prt 6 expr])
     AbsCringe.Not _ expr -> prPrec i 5 (concatD [doc (showString "not"), prt 6 expr])

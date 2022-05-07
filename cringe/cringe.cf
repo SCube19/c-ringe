@@ -58,21 +58,15 @@ Str.       Type ::= "string" ;
 
 Bool.      Type ::= "bool" ;
 
-Fun.       Type ::= "fun" "[" [ArgType] "->" RetType "]" ;
+Void.      Type ::= "void" ;
 
-Val.       ArgType ::= Type ;
-
-Ref.       ArgType ::= "ref" Type ;
-
-separator  ArgType "," ;
-
-NoVoid.    RetType ::= Type ;
-
-Void.      RetType ::= "" ;
+Fun.       Type ::= "fun" ;
 
 -- Args ----------------------------------------------------
 
-Arg. 	   Arg ::= ArgType Ident ;
+Arg. 	   Arg ::= Type Ident;
+
+RefArg.    Arg ::= "ref" Type Ident ;
 
 separator  Arg "," ;
 
@@ -90,7 +84,7 @@ ELitTrue.  Expr6 ::= "true" ;
 
 ELitFalse. Expr6 ::= "false" ;
 
-ELambda.   Expr6 ::= "(" [Arg] ")" "->" RetType Block;
+ELambda.   Expr6 ::= "(" [Arg] ")" "->" Type ":" Block;
 
 EApp.      Expr6 ::= Ident "(" [Expr] ")" ;
 

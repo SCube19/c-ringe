@@ -4,7 +4,7 @@ int a = 0;                  //integer initialization
 string y;                   // string initialization
 char z = 'z';               // character initialization
 bool b = true;              // bool initialization
-fun f = () -> void : {};    //function initialization with lambda expression
+fun [ -> ] f = () -> {};    //function initialization with lambda expression
 
 inc a;                      //increment
 dec a;                      //decrement
@@ -55,13 +55,13 @@ if(size <= 0)                           //as to not make any conflicts if-else h
 
 
 //Code example #3
-fun fac = (int n) -> int : {        //function definiton that takes integer and returns an integer
+fun [int -> int] fac = (int n) -> int {        //function definiton that takes integer and returns an integer
     if (n is 0)
         return 1;                   
     return n * fac(n - 1);
 }; 
 
-fun printFac = (int n) -> void : { //procedure definiton
+fun [int -> ] printFac = (int n) -> { //procedure definiton
     print(fac(n));                 //function application
 };
 
@@ -73,11 +73,11 @@ printFac(5);                       //procedure application
 
 
 //Code example #4
-fun add5ref = (ref int x) -> void : {   //pass by reference
+fun [ref int -> ] add5ref = (ref int x) -> {   //pass by reference
     x = x + 5;
 };
 
-fun add5 = (int x) -> int : {           //pass by value
+fun [int -> int] add5 = (int x) -> int {           //pass by value
     x = x + 5;
     return x;
 };
@@ -91,8 +91,8 @@ int y = add5(x);                        // y = 10, x = 5
 
 
 //Code example #5
-fun outer = (int x) -> void : {
-    fun error = (string y) -> string : {        //inner function
+fun [int -> ] outer = (int x) -> {
+    fun [string -> string] error = (string y) -> string {        //inner function
         return "Error: " + y;
     };
     if (x < 0) {
@@ -110,21 +110,21 @@ outer(-1);
 
 //Code example #6
 //higher order functions and lambdas
-fun apply = (int x, int y, fun f) -> void : {   //higher order function
+fun [int, int, fun [int, int -> int] -> ] apply = (int x, int y, fun [int, int -> int] f) ->  {   //higher order function
     return f(x, y);
 }; 
 
 int x = 4;
 int y = 10;
 
-print(apply(4, 10, (int x, int y) -> int : {return x*x + y*y + 2*x*y;}));   //lambda expression
+print(apply(4, 10, (int x, int y) -> int {return x*x + y*y + 2*x*y;}));   //lambda expression
 
 //closures
-fun counter = (int startValue) -> fun : {
-    return () -> int : {startValue = startValue + 1; return startValue;};   //counter closure
+fun [int -> fun [-> int]] counter = (int startValue) -> fun [-> int] {
+    return () -> int {startValue = startValue + 1; return startValue;};   //counter closure
 };
 
-fun count = counter(0);
+fun [-> int] count = counter(0);
 count();
 count();
 print(count());
@@ -138,7 +138,7 @@ int i = 0;
 while(true) {
     inc i;
     if (i < 10)
-        skipit;   //continue
+        skip;       //continue
     exit;           //break
 }
 
