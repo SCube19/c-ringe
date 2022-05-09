@@ -40,13 +40,13 @@ While.     Stmt ::= "while" "(" Expr ")" Stmt ;
 
 For.       Stmt ::= "from" Ident "=" Expr "to" Expr "do" Stmt ;
 
-Print.     Stmt ::= "print" "(" Expr ")" ";";
+Print.     Stmt ::= "print" Expr ";" ;
 
-Break.     Stmt ::= "exit" ";";
+Break.     Stmt ::= "exit" ";" ;
 
-Continue.  Stmt ::= "skip" ";";
+Continue.  Stmt ::= "skip" ";" ;
 
-SExp.      Stmt ::= Expr ";";
+SExp.      Stmt ::= Expr ";" ;
 
 -- Types ---------------------------------------------------
 

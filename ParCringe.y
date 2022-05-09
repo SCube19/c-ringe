@@ -114,7 +114,7 @@ Stmt
   | 'if' '(' Expr ')' Block 'else' Block { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.CondElse (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $3) (snd $5) (snd $7)) }
   | 'while' '(' Expr ')' Stmt { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.While (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $3) (snd $5)) }
   | 'from' Ident '=' Expr 'to' Expr 'do' Stmt { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.For (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4) (snd $6) (snd $8)) }
-  | 'print' '(' Expr ')' ';' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Print (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $3)) }
+  | 'print' Expr ';' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Print (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | 'exit' ';' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Break (uncurry AbsCringe.BNFC'Position (tokenLineCol $1))) }
   | 'skip' ';' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Continue (uncurry AbsCringe.BNFC'Position (tokenLineCol $1))) }
   | Expr ';' { (fst $1, AbsCringe.SExp (fst $1) (snd $1)) }
