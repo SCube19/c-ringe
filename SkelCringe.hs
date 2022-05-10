@@ -58,17 +58,13 @@ transType x = case x of
   AbsCringe.Char _ -> failure x
   AbsCringe.Str _ -> failure x
   AbsCringe.Bool _ -> failure x
-  AbsCringe.Fun _ argtypes rettype -> failure x
+  AbsCringe.Void _ -> failure x
+  AbsCringe.Fun _ argtypes type_ -> failure x
 
 transArgType :: Show a => AbsCringe.ArgType' a -> Result
 transArgType x = case x of
   AbsCringe.Val _ type_ -> failure x
   AbsCringe.Ref _ type_ -> failure x
-
-transRetType :: Show a => AbsCringe.RetType' a -> Result
-transRetType x = case x of
-  AbsCringe.NoVoid _ type_ -> failure x
-  AbsCringe.Void _ -> failure x
 
 transArg :: Show a => AbsCringe.Arg' a -> Result
 transArg x = case x of
@@ -82,7 +78,7 @@ transExpr x = case x of
   AbsCringe.EString _ string -> failure x
   AbsCringe.ELitTrue _ -> failure x
   AbsCringe.ELitFalse _ -> failure x
-  AbsCringe.ELambda _ args rettype block -> failure x
+  AbsCringe.ELambda _ args type_ block -> failure x
   AbsCringe.EApp _ ident exprs -> failure x
   AbsCringe.Neg _ expr -> failure x
   AbsCringe.Not _ expr -> failure x

@@ -64,9 +64,10 @@ import LexCringe
   'string'    { PT _ (TS _ 39) }
   'to'        { PT _ (TS _ 40) }
   'true'      { PT _ (TS _ 41) }
-  'while'     { PT _ (TS _ 42) }
-  '{'         { PT _ (TS _ 43) }
-  '}'         { PT _ (TS _ 44) }
+  'void'      { PT _ (TS _ 42) }
+  'while'     { PT _ (TS _ 43) }
+  '{'         { PT _ (TS _ 44) }
+  '}'         { PT _ (TS _ 45) }
   L_Ident     { PT _ (TV _)    }
   L_charac    { PT _ (TC _)    }
   L_integ     { PT _ (TI _)    }
@@ -130,7 +131,8 @@ Type
   | 'char' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Char (uncurry AbsCringe.BNFC'Position (tokenLineCol $1))) }
   | 'string' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Str (uncurry AbsCringe.BNFC'Position (tokenLineCol $1))) }
   | 'bool' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Bool (uncurry AbsCringe.BNFC'Position (tokenLineCol $1))) }
-  | 'fun' '[' ListArgType '->' RetType ']' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Fun (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $3) (snd $5)) }
+  | 'void' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Void (uncurry AbsCringe.BNFC'Position (tokenLineCol $1))) }
+  | 'fun' '[' ListArgType '->' Type ']' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Fun (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $3) (snd $5)) }
 
 ArgType :: { (AbsCringe.BNFC'Position, AbsCringe.ArgType) }
 ArgType
@@ -142,11 +144,6 @@ ListArgType
   : {- empty -} { (AbsCringe.BNFC'NoPosition, []) }
   | ArgType { (fst $1, (:[]) (snd $1)) }
   | ArgType ',' ListArgType { (fst $1, (:) (snd $1) (snd $3)) }
-
-RetType :: { (AbsCringe.BNFC'Position, AbsCringe.RetType) }
-RetType
-  : Type { (fst $1, AbsCringe.NoVoid (fst $1) (snd $1)) }
-  | {- empty -} { (AbsCringe.BNFC'NoPosition, AbsCringe.Void AbsCringe.BNFC'NoPosition) }
 
 Arg :: { (AbsCringe.BNFC'Position, AbsCringe.Arg) }
 Arg
@@ -166,7 +163,7 @@ Expr6
   | String { (fst $1, AbsCringe.EString (fst $1) (snd $1)) }
   | 'true' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.ELitTrue (uncurry AbsCringe.BNFC'Position (tokenLineCol $1))) }
   | 'false' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.ELitFalse (uncurry AbsCringe.BNFC'Position (tokenLineCol $1))) }
-  | '(' ListArg ')' '->' RetType Block { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.ELambda (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $5) (snd $6)) }
+  | '(' ListArg ')' '->' Type Block { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.ELambda (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $5) (snd $6)) }
   | Ident '(' ListExpr ')' { (fst $1, AbsCringe.EApp (fst $1) (snd $1) (snd $3)) }
   | '(' Expr ')' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), (snd $2)) }
 

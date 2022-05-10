@@ -53,15 +53,16 @@ data Item' a = NoInit a Ident | Init a Ident (Expr' a)
 
 type Type = Type' BNFC'Position
 data Type' a
-    = Int a | Char a | Str a | Bool a | Fun a [ArgType' a] (RetType' a)
+    = Int a
+    | Char a
+    | Str a
+    | Bool a
+    | Void a
+    | Fun a [ArgType' a] (Type' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable)
 
 type ArgType = ArgType' BNFC'Position
 data ArgType' a = Val a (Type' a) | Ref a (Type' a)
-  deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable)
-
-type RetType = RetType' BNFC'Position
-data RetType' a = NoVoid a (Type' a) | Void a
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable)
 
 type Arg = Arg' BNFC'Position
@@ -76,7 +77,7 @@ data Expr' a
     | EString a String
     | ELitTrue a
     | ELitFalse a
-    | ELambda a [Arg' a] (RetType' a) (Block' a)
+    | ELambda a [Arg' a] (Type' a) (Block' a)
     | EApp a Ident [Expr' a]
     | Neg a (Expr' a)
     | Not a (Expr' a)
@@ -156,17 +157,13 @@ instance HasPosition Type where
     Char p -> p
     Str p -> p
     Bool p -> p
+    Void p -> p
     Fun p _ _ -> p
 
 instance HasPosition ArgType where
   hasPosition = \case
     Val p _ -> p
     Ref p _ -> p
-
-instance HasPosition RetType where
-  hasPosition = \case
-    NoVoid p _ -> p
-    Void p -> p
 
 instance HasPosition Arg where
   hasPosition = \case
