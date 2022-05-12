@@ -80,7 +80,7 @@ typeCheckStmt (For pos ident from to stmt) = do
   ensureType rawInt from
   ensureType rawInt to
   env <- get
-  localTypeEnv (allocType (emptyScope $ setInsideLoop env True) ident (Int pos, True)) (typeCheckStmt stmt)
+  localTypeEnv (setType (emptyScope $ setInsideLoop env True) ident (Int pos, True)) (typeCheckStmt stmt)
 
 typeCheckStmt (Print pos expr) = do
   dontAllowTypes [rawFun, rawVoid] expr
@@ -106,12 +106,13 @@ typeCheckDecl pos t (NoInit _ ident) True = throwException $ ImmutableNotInitial
 
 typeCheckDecl pos t (NoInit _ ident) False = do
   dontAllowVoid t
+  dontAllowTypeMatch pos rawFun t
   env <- get
   case getType env ident of
-    Nothing -> put $ allocType env ident (t, False)
+    Nothing -> put $ setType env ident (t, False)
     Just _ -> if S.member ident (scope env)
                   then throwException $ RedeclarationException pos ident
-                  else put $ allocType env ident (t, False)
+                  else put $ setType env ident (t, False)
 
 typeCheckDecl pos t (Init _ ident expr) isImmutable = do
   dontAllowVoid t
@@ -119,10 +120,10 @@ typeCheckDecl pos t (Init _ ident expr) isImmutable = do
   ensureTypeMatch pos t eType
   env <- get
   case getType env ident of
-    Nothing -> put $ allocType env ident (t, isImmutable)
+    Nothing -> put $ setType env ident (t, isImmutable)
     Just _ -> if S.member ident (scope env)
                   then throwException $ RedeclarationException pos ident
-                  else put $ allocType env ident (t, False)
+                  else put $ setType env ident (t, False)
 
 ---------------EXPR---------------------------------------------------------------------------------------
 typeCheckExpr :: Expr -> TypeCheckerState Type
@@ -236,7 +237,7 @@ ensureUniqueIdents args =
 -------------DONT ALLOW---------------------------------------------------------------
 dontAllowTypeMatch :: BNFC'Position -> Type -> Type -> TypeCheckerState ()
 dontAllowTypeMatch pos type1 type2 =
-  if raw type1 /= raw type2
+  if cleanRaw type1 /= cleanRaw type2
     then return ()
     else throwException $ InvalidTypeException pos type2
 
@@ -264,6 +265,6 @@ dontAllowVoid t =
 
 ------------------FUNCTION STATE-----------------------------
 functionState :: TypeCheckerS -> [Arg] -> Type -> TypeCheckerS
-functionState s args rType = allocTypes (emptyScope $ setExpectedReturnType s $ Just rType)
+functionState s args rType = setTypes (emptyScope $ setExpectedReturnType s $ Just rType)
                               (map getArgIdent args)
                               (map (makeFalsyTuple . toType . getArgType) args)

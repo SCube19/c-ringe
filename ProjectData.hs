@@ -8,6 +8,7 @@ import Control.Monad.Trans.State (StateT, get, modify, put, gets)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Char (toLower)
 import Data.Maybe (fromMaybe)
+import InteractiveEval (Term(val))
 
 -----------EVALUATOR ENVIRONMENT------------------------------------------------------------------------
 type EvaluatorState = StateT EvaluatorS (ExceptT String IO)
@@ -51,6 +52,10 @@ castInteger (IntV v) = v
 castInteger (BoolV v) = if v then 1 else 0
 castInteger _ = 0
 
+castString :: Value -> String
+castString (StrV v) = v
+castString _ = ""
+
 type Loc = Integer
 
 data EvaluatorS = EvaluatorS {
@@ -69,6 +74,11 @@ initEvaluatorS = EvaluatorS {
 getValue :: EvaluatorS -> Ident -> Maybe Value
 getValue s ident = M.lookup (fromMaybe (-1) (M.lookup ident (env s))) (store s)
 
+allocValues :: EvaluatorS -> [Ident] -> [Value] -> EvaluatorS
+allocValues s _ [] = s
+allocValues s [] _ = s
+allocValues s (i:is) (v:vs) = allocValues (allocValue s i v) is vs
+
 allocValue :: EvaluatorS -> Ident -> Value -> EvaluatorS
 allocValue s ident value = EvaluatorS {
   env = M.insert ident (newloc s) (env s),
@@ -77,9 +87,9 @@ allocValue s ident value = EvaluatorS {
 }
 
 setValues :: EvaluatorS -> [Ident] -> [Value] -> EvaluatorS
-setValues env _ [] = env
-setValues env [] _ = env
-setValues env (i:is) (v:vs) = setValues (setValue env i v) is vs
+setValues s _ [] = s
+setValues s [] _ = s
+setValues s (i:is) (v:vs) = setValues (setValue s i v) is vs
 
 setValue :: EvaluatorS -> Ident -> Value -> EvaluatorS
 setValue s ident value = 
@@ -90,13 +100,20 @@ setValue s ident value =
       store = M.insert loc value (store s),
       newloc = newloc s
     }
+
+-- localEnv :: TypeCheckerS -> TypeCheckerState () -> TypeCheckerState ()
+-- localEnv changedEnv action = do
+--   originalS <- get 
+--   put changedEnv
+--   action
+--   changedStoreS <- get 
+--   put $ setTypeStore originalS (typeStore changedStoreS)
+
 -----------TYPE CHECKER ENVIRONMENT---------------------------------------------------------------------
 type TypeCheckerState = StateT TypeCheckerS (ExceptT String IO)
 
 data TypeCheckerS = TypeCheckerS {
-  typeEnv :: M.Map Ident Loc,
-  typeStore :: M.Map Loc (Type, Bool),
-  typeNewloc :: Loc,
+  typeEnv :: M.Map Ident (Type, Bool),
   scope :: S.Set Ident,
   expectedReturnType :: Maybe Type,
   insideLoop :: Bool
@@ -105,45 +122,22 @@ data TypeCheckerS = TypeCheckerS {
 initTypeCheckerS :: TypeCheckerS
 initTypeCheckerS = TypeCheckerS {
   typeEnv = M.empty,
-  typeStore = M.empty,
-  typeNewloc = 0,
   scope = S.empty,
   expectedReturnType = Nothing,
   insideLoop = False
 }
 
 getType :: TypeCheckerS -> Ident -> Maybe (Type, Bool)
-getType s ident = M.lookup (fromMaybe (-1) (M.lookup ident (typeEnv s))) (typeStore s)
-
-allocTypes :: TypeCheckerS -> [Ident] -> [(Type, Bool)] -> TypeCheckerS
-allocTypes env _ [] = env
-allocTypes env [] _ = env
-allocTypes env (i:is) (t:ts) = allocTypes (allocType env i t) is ts
-
-allocType :: TypeCheckerS -> Ident -> (Type, Bool) -> TypeCheckerS
-allocType s ident t = TypeCheckerS {
-  typeEnv = M.insert ident (typeNewloc s) (typeEnv s),
-  typeStore = M.insert (typeNewloc s) t (typeStore s),
-  typeNewloc = typeNewloc s + 1,
-  scope = S.insert ident (scope s),
-  expectedReturnType = expectedReturnType s,
-  insideLoop = insideLoop s
-}
-
+getType s ident = M.lookup ident (typeEnv s)
 
 setTypes :: TypeCheckerS -> [Ident] -> [(Type, Bool)] -> TypeCheckerS
-setTypes env _ [] = env
-setTypes env [] _ = env
-setTypes env (i:is) (t:ts) = setTypes (setType env i t) is ts
+setTypes s _ [] = s
+setTypes s [] _ = s
+setTypes s (i:is) (t:ts) = setTypes (setType s i t) is ts
 
 setType :: TypeCheckerS -> Ident -> (Type, Bool) -> TypeCheckerS
-setType s ident t = 
-  case M.lookup ident (typeEnv s) of
-    Nothing -> allocType s ident t
-    Just loc -> TypeCheckerS {
-      typeEnv = typeEnv s,
-      typeStore = M.insert loc t (typeStore s),
-      typeNewloc = typeNewloc s,
+setType s ident t = TypeCheckerS {
+      typeEnv = M.insert ident t (typeEnv s),
       scope = S.insert ident (scope s),
       expectedReturnType = expectedReturnType s,
       insideLoop = insideLoop s
@@ -152,8 +146,6 @@ setType s ident t =
 setExpectedReturnType :: TypeCheckerS -> Maybe Type -> TypeCheckerS
 setExpectedReturnType s r = TypeCheckerS {
   typeEnv = typeEnv s,
-  typeStore = typeStore s,
-  typeNewloc = typeNewloc s,
   scope = scope s,
   expectedReturnType = r,
   insideLoop = insideLoop s
@@ -162,38 +154,14 @@ setExpectedReturnType s r = TypeCheckerS {
 setInsideLoop :: TypeCheckerS -> Bool -> TypeCheckerS
 setInsideLoop s b = TypeCheckerS {
   typeEnv = typeEnv s,
-  typeStore = typeStore s,
-  typeNewloc = typeNewloc s,
   scope = scope s,
   expectedReturnType = expectedReturnType s,
   insideLoop = b
 }
 
-setTypeEnv :: TypeCheckerS -> M.Map Ident Loc -> TypeCheckerS
-setTypeEnv s e = TypeCheckerS {
-  typeEnv = e,
-  typeStore = typeStore s,
-  typeNewloc = typeNewloc s,
-  scope = scope s,
-  expectedReturnType = expectedReturnType s,
-  insideLoop = insideLoop s
-}
-
-setTypeStore :: TypeCheckerS -> M.Map Loc (Type, Bool) -> TypeCheckerS
-setTypeStore s st = TypeCheckerS {
-  typeEnv = typeEnv s,
-  typeStore = st,
-  typeNewloc = typeNewloc s,
-  scope = scope s,
-  expectedReturnType = expectedReturnType s,
-  insideLoop = insideLoop s
-}
-
 emptyScope :: TypeCheckerS -> TypeCheckerS
 emptyScope s = TypeCheckerS {
   typeEnv = typeEnv s,
-  typeStore = typeStore s,
-  typeNewloc = typeNewloc s,
   scope = S.empty,
   expectedReturnType = expectedReturnType s,
   insideLoop = insideLoop s
@@ -201,11 +169,10 @@ emptyScope s = TypeCheckerS {
 
 localTypeEnv :: TypeCheckerS -> TypeCheckerState () -> TypeCheckerState ()
 localTypeEnv changedEnv action = do
-  originalS <- get 
+  backup <- get 
   put changedEnv
   action
-  changedStoreS <- get 
-  put $ setTypeStore originalS (typeStore changedStoreS)
+  put backup
 
 --------------EXCEPTIONS---------------------------------------------------------------------------------
 data TypeCheckerException  =  InvalidTypeExpectedException BNFC'Position Type Type

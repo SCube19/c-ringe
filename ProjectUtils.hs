@@ -55,7 +55,7 @@ prettyType (Int _) = "int"
 prettyType (Char _) = "char"
 prettyType (Str _) = "string"
 prettyType (Bool _) = "bool"
-prettyType (Void _) = "none"
+prettyType (Void _) = "void"
 prettyType (Fun _ args rType) = "fun [" ++ intercalate "," (map prettyArgType args) ++ " -> " ++ prettyType rType ++ "]"
 
 prettyArgType :: ArgType -> String

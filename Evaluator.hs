@@ -2,7 +2,7 @@ module Evaluator where
 import ProjectData
 import Control.Monad.Trans.Except (ExceptT, throwE)
 import AbsCringe
-import Control.Monad.Trans.State (evalStateT, get, modify)
+import Control.Monad.Trans.State (evalStateT, get, modify, put)
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import ProjectUtils (throwException)
 
@@ -20,15 +20,27 @@ evalStmt (Empty _) = return ()
 
 evalStmt (BStmt _ (Block _ stmts)) = return ()
 
-evalStmt (Decl pos t item) = return ()
+evalStmt (Decl pos t (NoInit _ ident)) = do 
+    st <- get 
+    put $ allocValue st ident (rndInit t)
 
-evalStmt (ConstDecl pos t item) = return ()
+evalStmt (Decl pos t (Init _ ident expr)) = do
+    val1 <- evalExpr expr
+    st <- get
+    put $ allocValue st ident val1
 
-evalStmt (Ass pos ident expr) = return ()
+evalStmt (ConstDecl pos t item) = evalStmt(Decl pos t item)
 
-evalStmt (Incr pos ident) = return ()
+evalStmt (Ass pos ident expr) = do
+    st <- get
+    val1 <- evalExpr expr
+    put $ setValue st ident val1 
 
-evalStmt (Decr pos ident) = return ()
+evalStmt (Incr pos ident) = 
+    evalStmt(Ass pos ident (EAdd pos (EVar pos ident) (Plus pos) (ELitInt pos 1)))
+
+evalStmt (Decr pos ident) = 
+    evalStmt(Ass pos ident (EAdd pos (EVar pos ident) (Minus pos) (ELitInt pos 1)))
 
 evalStmt (Ret pos expr) = return ()
 
@@ -57,25 +69,17 @@ evalStmt (SExp _ expr) = do
   evalExpr expr
   return ()
 
------------------DECL-------------------------------------------------------------------------------
-evalDecl :: BNFC'Position -> Type -> Item -> Bool -> EvaluatorState ()
-evalDecl pos t (NoInit _ ident) True = return ()
-
-evalDecl pos t (NoInit _ ident) False = return ()
-
-evalDecl pos t (Init _ ident expr) isImmutable = return ()
-
 ---------------EXPR---------------------------------------------------------------------------------------
 evalExpr :: Expr -> EvaluatorState Value
 evalExpr (EVar pos ident) = do
-    env <- get
-    case getValue env ident of
+    st <- get
+    case getValue st ident of
       Nothing -> throwException $ GenericRuntimeException pos
       Just v -> return v
 
 evalExpr (EApp pos ident exprs) = do
-    env <- get
-    case getValue env ident of
+    st <- get
+    case getValue st ident of
       Nothing -> throwException $ GenericRuntimeException pos
       Just (FunV args block env) -> return $ IntV 1
       Just _ -> throwException $ GenericRuntimeException pos
@@ -88,7 +92,9 @@ evalExpr (EAdd pos expr1 op expr2) = do
     val1 <- evalExpr expr1
     val2 <- evalExpr expr2
     case op of
-      Plus ma -> return $ IntV $ twoEvalInt (+) val1 val2
+      Plus ma -> return $ case val1 of 
+            (StrV _) -> StrV $ twoEvalString (++) val1 val2  
+            _ -> IntV $ twoEvalInt (+) val1 val2
       Minus ma -> return $ IntV $ twoEvalInt (-) val1 val2
 
 evalExpr (EMul pos expr1 op expr2) = do
@@ -147,3 +153,15 @@ twoEvalInt f v1 v2 = f (castInteger v1) (castInteger v2)
 
 oneEvalInt :: (Integer -> Integer) -> Value -> Integer
 oneEvalInt f = f . castInteger
+
+---------EVAL STR---------------------------------
+twoEvalString :: (String -> String -> String) -> Value -> Value -> String
+twoEvalString f v1 v2 = f (castString v1) (castString v2)
+
+--------RND INIT----------------------------------
+rndInit :: Type -> Value
+rndInit (Int _) = IntV 0
+rndInit (Str _) = StrV ""
+rndInit (Char _) = CharV '\0'
+rndInit (Bool _) = BoolV False 
+rndInit _ = undefined

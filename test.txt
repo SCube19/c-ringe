@@ -1,10 +1,11 @@
-fun [int -> fun [-> int]] f = (int x) -> fun [-> int] {
-    return (() -> void {
-        inc x;
-        return x;
-    });
-};
+int x;
+int a = 10 * 8 mod 3;
+char y;
+bool z;
+string p;
 
-fun [-> void] g = () -> void {
-    return;
-};
+y = 'p';
+
+p = "siuras";
+
+print p + "dupka";
