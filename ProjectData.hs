@@ -9,6 +9,8 @@ import Control.Monad.Trans.Reader (ReaderT)
 import Data.Char (toLower)
 import Data.Maybe (fromMaybe)
 import InteractiveEval (Term(val))
+import PrelNames (stablePtrPrimTyConKey)
+import Debug.Trace (trace)
 
 -----------EVALUATOR ENVIRONMENT------------------------------------------------------------------------
 type EvaluatorState = StateT EvaluatorS (ExceptT String IO)
@@ -62,14 +64,14 @@ data EvaluatorS = EvaluatorS {
   env :: M.Map Ident Loc,
   store :: M.Map Loc Value,
   newloc :: Loc
-}
+} deriving Show
 
 initEvaluatorS :: EvaluatorS
 initEvaluatorS = EvaluatorS {
   env = M.empty,
   store = M.empty,
   newloc = 0
-}
+} 
 
 getValue :: EvaluatorS -> Ident -> Maybe Value
 getValue s ident = M.lookup (fromMaybe (-1) (M.lookup ident (env s))) (store s)
@@ -101,13 +103,20 @@ setValue s ident value =
       newloc = newloc s
     }
 
--- localEnv :: TypeCheckerS -> TypeCheckerState () -> TypeCheckerState ()
--- localEnv changedEnv action = do
---   originalS <- get 
---   put changedEnv
---   action
---   changedStoreS <- get 
---   put $ setTypeStore originalS (typeStore changedStoreS)
+setEnv :: EvaluatorS -> M.Map Ident Loc -> EvaluatorS
+setEnv st e = EvaluatorS {
+  env = e,
+  store = store st,
+  newloc = newloc st
+}
+
+localEnv :: EvaluatorS -> EvaluatorState () -> EvaluatorState ()
+localEnv changedEnv action = do
+  originalS <- get 
+  put changedEnv
+  action
+  changedStoreS <- get 
+  put $ setEnv changedStoreS (env originalS)
 
 -----------TYPE CHECKER ENVIRONMENT---------------------------------------------------------------------
 type TypeCheckerState = StateT TypeCheckerS (ExceptT String IO)

@@ -1,11 +1,3 @@
-int x;
-int a = 10 * 8 mod 3;
-char y;
-bool z;
-string p;
-
-y = 'p';
-
-p = "siuras";
-
-print p + "dupka";
+fun [-> int] f = () -> int {
+    return f();
+};

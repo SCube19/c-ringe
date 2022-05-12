@@ -20,15 +20,15 @@ typeCheck (Program _ stmts) =
   evalStateT (typeCheckBlock stmts) initTypeCheckerS
 
 typeCheckBlock :: [Stmt] -> TypeCheckerState ()
-typeCheckBlock = mapM_ typeCheckStmt
+typeCheckBlock stmts = do
+  env <- get
+  localTypeEnv (emptyScope env) (mapM_ typeCheckStmt stmts)
 
 --------------------------------STMT------------------------------------------------------------------------------
 typeCheckStmt :: Stmt -> TypeCheckerState ()
 typeCheckStmt (Empty _) = return ()
 
-typeCheckStmt (BStmt _ (Block _ stmts)) = do
-  env <- get
-  localTypeEnv (emptyScope env) (typeCheckBlock stmts)
+typeCheckStmt (BStmt _ (Block _ stmts)) = typeCheckBlock stmts
 
 typeCheckStmt (Decl pos t item) = typeCheckDecl pos t item False
 
@@ -115,15 +115,15 @@ typeCheckDecl pos t (NoInit _ ident) False = do
                   else put $ setType env ident (t, False)
 
 typeCheckDecl pos t (Init _ ident expr) isImmutable = do
+  env <- get
   dontAllowVoid t
+  put $ setType env ident (t, False)
   eType <- typeCheckExpr expr
   ensureTypeMatch pos t eType
-  env <- get
   case getType env ident of
     Nothing -> put $ setType env ident (t, isImmutable)
-    Just _ -> if S.member ident (scope env)
-                  then throwException $ RedeclarationException pos ident
-                  else put $ setType env ident (t, False)
+    Just _ -> when (S.member ident (scope env)) $ throwException $ RedeclarationException pos ident
+
 
 ---------------EXPR---------------------------------------------------------------------------------------
 typeCheckExpr :: Expr -> TypeCheckerState Type
