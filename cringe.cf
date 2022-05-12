@@ -42,6 +42,8 @@ For.       Stmt ::= "from" Ident "=" Expr "to" Expr "do" Stmt ;
 
 Print.     Stmt ::= "print" Expr ";" ;
 
+PrintLn.   Stmt ::= "printLn" Expr ";" ;
+
 Break.     Stmt ::= "exit" ";" ;
 
 Continue.  Stmt ::= "skip" ";" ;

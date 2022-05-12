@@ -43,6 +43,7 @@ transStmt x = case x of
   AbsCringe.While _ expr stmt -> failure x
   AbsCringe.For _ ident expr1 expr2 stmt -> failure x
   AbsCringe.Print _ expr -> failure x
+  AbsCringe.PrintLn _ expr -> failure x
   AbsCringe.Break _ -> failure x
   AbsCringe.Continue _ -> failure x
   AbsCringe.SExp _ expr -> failure x

@@ -9,10 +9,11 @@ import Data.List
 import Control.Monad.Trans.Except (throwE)
 import Control.Monad.Trans.Class
 import qualified Data.Set as Set
+import Control.Monad.Trans.State (StateT, get, put)
 ------------------------------GENERAL--------------------------------------------------------
 exitError :: String -> IO ()
 exitError e = do
-    hPutStrLn stderr e
+    hPutStrLn stderr ("FATAL: " ++ e)
     exitFailure
 
 class Typical a where
@@ -31,7 +32,7 @@ getArgType (Arg _ t _) = t
 makeFalsyTuple :: a -> (a, Bool)
 makeFalsyTuple x = (x, False)
 
-throwTC x = lift $ throwE $ show x
+throwException x = lift $ throwE $ show x
 
 firstDuplicateIndex :: Ord a => [a] -> Maybe Int
 firstDuplicateIndex xs = dup' xs Set.empty

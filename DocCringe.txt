@@ -38,9 +38,9 @@ The reserved words used in cringe are the following:
   | ``do`` | ``else`` | ``exit`` | ``false``
   | ``from`` | ``fun`` | ``if`` | ``immutable``
   | ``inc`` | ``int`` | ``is`` | ``mod``
-  | ``not`` | ``or`` | ``print`` | ``ref``
-  | ``return`` | ``skip`` | ``string`` | ``to``
-  | ``true`` | ``void`` | ``while`` |
+  | ``not`` | ``or`` | ``print`` | ``printLn``
+  | ``ref`` | ``return`` | ``skip`` | ``string``
+  | ``to`` | ``true`` | ``void`` | ``while``
 
 The symbols used in cringe are the following:
   | { | } | ; | =
@@ -76,6 +76,7 @@ All other symbols are terminals.
   |  |  **|**  | ``while`` ``(`` //Expr// ``)`` //Stmt//
   |  |  **|**  | ``from`` //Ident// ``=`` //Expr// ``to`` //Expr// ``do`` //Stmt//
   |  |  **|**  | ``print`` //Expr// ``;``
+  |  |  **|**  | ``printLn`` //Expr// ``;``
   |  |  **|**  | ``exit`` ``;``
   |  |  **|**  | ``skip`` ``;``
   |  |  **|**  | //Expr// ``;``

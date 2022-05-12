@@ -42,6 +42,7 @@ data Stmt' a
     | While a (Expr' a) (Stmt' a)
     | For a Ident (Expr' a) (Expr' a) (Stmt' a)
     | Print a (Expr' a)
+    | PrintLn a (Expr' a)
     | Break a
     | Continue a
     | SExp a (Expr' a)
@@ -142,6 +143,7 @@ instance HasPosition Stmt where
     While p _ _ -> p
     For p _ _ _ _ -> p
     Print p _ -> p
+    PrintLn p _ -> p
     Break p -> p
     Continue p -> p
     SExp p _ -> p

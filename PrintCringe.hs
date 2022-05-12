@@ -168,6 +168,7 @@ instance Print (AbsCringe.Stmt' a) where
     AbsCringe.While _ expr stmt -> prPrec i 0 (concatD [doc (showString "while"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 stmt])
     AbsCringe.For _ id_ expr1 expr2 stmt -> prPrec i 0 (concatD [doc (showString "from"), prt 0 id_, doc (showString "="), prt 0 expr1, doc (showString "to"), prt 0 expr2, doc (showString "do"), prt 0 stmt])
     AbsCringe.Print _ expr -> prPrec i 0 (concatD [doc (showString "print"), prt 0 expr, doc (showString ";")])
+    AbsCringe.PrintLn _ expr -> prPrec i 0 (concatD [doc (showString "printLn"), prt 0 expr, doc (showString ";")])
     AbsCringe.Break _ -> prPrec i 0 (concatD [doc (showString "exit"), doc (showString ";")])
     AbsCringe.Continue _ -> prPrec i 0 (concatD [doc (showString "skip"), doc (showString ";")])
     AbsCringe.SExp _ expr -> prPrec i 0 (concatD [prt 0 expr, doc (showString ";")])

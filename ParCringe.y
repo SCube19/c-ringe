@@ -58,16 +58,17 @@ import LexCringe
   'not'       { PT _ (TS _ 33) }
   'or'        { PT _ (TS _ 34) }
   'print'     { PT _ (TS _ 35) }
-  'ref'       { PT _ (TS _ 36) }
-  'return'    { PT _ (TS _ 37) }
-  'skip'      { PT _ (TS _ 38) }
-  'string'    { PT _ (TS _ 39) }
-  'to'        { PT _ (TS _ 40) }
-  'true'      { PT _ (TS _ 41) }
-  'void'      { PT _ (TS _ 42) }
-  'while'     { PT _ (TS _ 43) }
-  '{'         { PT _ (TS _ 44) }
-  '}'         { PT _ (TS _ 45) }
+  'printLn'   { PT _ (TS _ 36) }
+  'ref'       { PT _ (TS _ 37) }
+  'return'    { PT _ (TS _ 38) }
+  'skip'      { PT _ (TS _ 39) }
+  'string'    { PT _ (TS _ 40) }
+  'to'        { PT _ (TS _ 41) }
+  'true'      { PT _ (TS _ 42) }
+  'void'      { PT _ (TS _ 43) }
+  'while'     { PT _ (TS _ 44) }
+  '{'         { PT _ (TS _ 45) }
+  '}'         { PT _ (TS _ 46) }
   L_Ident     { PT _ (TV _)    }
   L_charac    { PT _ (TC _)    }
   L_integ     { PT _ (TI _)    }
@@ -116,6 +117,7 @@ Stmt
   | 'while' '(' Expr ')' Stmt { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.While (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $3) (snd $5)) }
   | 'from' Ident '=' Expr 'to' Expr 'do' Stmt { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.For (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4) (snd $6) (snd $8)) }
   | 'print' Expr ';' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Print (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+  | 'printLn' Expr ';' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.PrintLn (uncurry AbsCringe.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | 'exit' ';' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Break (uncurry AbsCringe.BNFC'Position (tokenLineCol $1))) }
   | 'skip' ';' { (uncurry AbsCringe.BNFC'Position (tokenLineCol $1), AbsCringe.Continue (uncurry AbsCringe.BNFC'Position (tokenLineCol $1))) }
   | Expr ';' { (fst $1, AbsCringe.SExp (fst $1) (snd $1)) }

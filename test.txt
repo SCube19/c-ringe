@@ -1,2 +1,10 @@
-from x = 2 to '2' do 
-    int y;
+fun [int -> fun [-> int]] f = (int x) -> fun [-> int] {
+    return (() -> void {
+        inc x;
+        return x;
+    });
+};
+
+fun [-> void] g = () -> void {
+    return;
+};

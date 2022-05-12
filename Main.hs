@@ -2,7 +2,7 @@ import AbsCringe
 import TypeChecker
 import ProjectUtils
 import ProjectData 
-import Interpreter
+import Evaluator
 
 import ParCringe (myLexer, pProgram)
 import System.Directory.Internal.Prelude (exitFailure, getArgs)
@@ -16,11 +16,11 @@ tokenize s = case pProgram $ myLexer s of
   Left str -> throwE str
   Right prog -> return prog
 
-runProgram :: String -> ExceptT String IO Int
+runProgram :: String -> ExceptT String IO String
 runProgram s = do
   tokens <- tokenize s
   typecheck <- typeCheck tokens
-  interpret tokens
+  eval tokens
 
 main :: IO ()
 main = do
@@ -29,11 +29,11 @@ main = do
     [] -> do
       contents <- getContents
       result <- runExceptT $ runProgram contents
-      either exitError print result
+      either exitError putStrLn result
     [file] -> do
       program <- readFile file
       result <- runExceptT $ runProgram program
-      either exitError print result
+      either exitError putStrLn result
 
     _ -> exitFailure
 
