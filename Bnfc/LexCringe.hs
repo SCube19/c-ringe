@@ -7,7 +7,7 @@
 
 {-# LANGUAGE PatternSynonyms #-}
 
-module LexCringe where
+module Bnfc.LexCringe where
 
 import Prelude
 

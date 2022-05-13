@@ -1,13 +1,14 @@
-module Evaluator where
-import ProjectData
+module Evaluator.Evaluator where
+import Evaluator.EvaluatorData
 import Control.Monad.Trans.Except (ExceptT, throwE)
-import AbsCringe
+import Bnfc.AbsCringe
 import Control.Monad.Trans.State (evalStateT, get, modify, put, gets)
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import ProjectUtils (throwException, Raw (raw), rawVoid)
 import Control.Monad (when, replicateM_, unless)
 import Debug.Trace (trace)
 import Data.Maybe (isNothing, isJust, fromMaybe)
+import Evaluator.EvaluatorUtils
 
 eval :: Program -> ExceptT String IO String
 eval (Program _ stmts) = do
@@ -114,13 +115,14 @@ evalExpr (EVar pos ident) = do
       Just v -> return v
 
 evalExpr (EApp pos ident exprs) = do
-    st <- trace ("exprs: " ++ show exprs) get
+    st <- get
     case getValue st ident of
       Nothing -> throwException $ GenericRuntimeException pos
       Just (FunV args rType (Block _ stmts) env) -> do
           vals <- mapM evalExpr exprs
           localEnv (functionEnv st env ident args exprs vals) (evalBlock stmts)
           newSt <- get
+          put $ setReturnValue newSt Nothing
           case returnValue newSt of
             Nothing -> if rType == rawVoid
                             then return VoidV
@@ -183,55 +185,3 @@ evalExpr (EString _ val) = return $ StrV val
 evalExpr (ELitTrue _) = return $ BoolV True
 evalExpr (ELitFalse _) = return $ BoolV False
 
-
-----------EVAL BOOL--------------------------------
-twoEvalBool :: (Bool -> Bool -> Bool) -> Value -> Value -> Bool
-twoEvalBool f v1 v2 = f (castBool v1) (castBool v2)
-
-oneEvalBool :: (Bool -> Bool) -> Value -> Bool
-oneEvalBool f = f . castBool
-
----------EVAL INT---------------------------------
-twoEvalInt :: (Integer -> Integer -> Integer) -> Value -> Value -> Integer
-twoEvalInt f v1 v2 = f (castInteger v1) (castInteger v2)
-
-oneEvalInt :: (Integer -> Integer) -> Value -> Integer
-oneEvalInt f = f . castInteger
-
----------EVAL STR---------------------------------
-twoEvalString :: (String -> String -> String) -> Value -> Value -> String
-twoEvalString f v1 v2 = f (castString v1) (castString v2)
-
---------RND INIT----------------------------------
-rndInit :: Type -> Value
-rndInit (Int _) = IntV 0
-rndInit (Str _) = StrV ""
-rndInit (Char _) = CharV '\0'
-rndInit (Bool _) = BoolV False
-rndInit _ = undefined
-
-----------IGNORE--------------------------------------
-ignore :: EvaluatorS -> Bool
-ignore s = wasBreak s || wasContinue s || isJust (returnValue s)
-
-tryIgnoreEval :: EvaluatorState () -> EvaluatorState ()
-tryIgnoreEval action = do
-    s <- get
-    unless (ignore s) action
-
-------------FUNCTION ENV-----------------------------------
-functionEnv :: EvaluatorS -> Environment -> Ident -> [Arg] -> [Expr] -> [Value] -> EvaluatorS
-functionEnv s funEnv f = funcArgs (setEnv s funEnv) s
-
-funcArgs :: EvaluatorS -> EvaluatorS -> [Arg] -> [Expr] -> [Value] -> EvaluatorS
-funcArgs s _ [] [] [] = s
-funcArgs s _ [] _ _ = s
-funcArgs s _ _ [] _ = s
-funcArgs s _ _ _ [] = s
-funcArgs s recentS ((Arg _ (Val _ _) ident):args) (expr:exprs) (val:vals) =
-    funcArgs (allocValue s ident val) recentS args exprs vals
-
-funcArgs s recentS a@((Arg _ (Ref _ _ ) ident):args) e@((EVar _ varIdent):exprs) v@(val:vals) =
-    funcArgs (setLoc s ident (fromMaybe (-1) $ getLoc recentS varIdent)) recentS args exprs vals
-
-funcArgs s _ ((Arg _ (Ref _ _) ident):_) _ _  = undefined

@@ -1,13 +1,13 @@
 {-# LANGUAGE FlexibleInstances #-}
 module ProjectUtils where
-import AbsCringe
+import Bnfc.AbsCringe
 
 import System.Directory.Internal.Prelude (getArgs)
 import System.Exit (exitSuccess, exitFailure)
-import System.IO
-import Data.List
+import System.IO ( stderr, hPutStrLn )
+import Data.List ( intercalate )
 import Control.Monad.Trans.Except (throwE)
-import Control.Monad.Trans.Class
+import Control.Monad.Trans.Class ( MonadTrans(lift) )
 import qualified Data.Set as Set
 import Control.Monad.Trans.State (StateT, get, put)
 ------------------------------GENERAL--------------------------------------------------------
@@ -88,6 +88,3 @@ rawStr = Str Nothing
 rawBool = Bool Nothing
 rawFun = Fun Nothing [] (Void Nothing)
 rawVoid = Void Nothing
-
---------------------TYPE CHECKER UTILS----------------------------------------------------
-

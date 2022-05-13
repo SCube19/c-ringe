@@ -6,7 +6,7 @@
 {-# OPTIONS_GHC -fno-warn-incomplete-patterns -fno-warn-overlapping-patterns #-}
 {-# LANGUAGE PatternSynonyms #-}
 
-module ParCringe
+module Bnfc.ParCringe
   ( happyError
   , myLexer
   , pProgram
@@ -14,8 +14,8 @@ module ParCringe
 
 import Prelude
 
-import qualified AbsCringe
-import LexCringe
+import qualified Bnfc.AbsCringe as AbsCringe
+import Bnfc.LexCringe
 import qualified Data.Array as Happy_Data_Array
 import qualified Data.Bits as Bits
 import qualified GHC.Exts as Happy_GHC_Exts

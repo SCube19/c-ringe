@@ -1,19 +1,17 @@
-module TypeChecker where
+module Typechecker.TypeChecker where
 
-import AbsCringe
-import Control.Applicative.Lift
-import Control.Monad
+import Bnfc.AbsCringe
+import Control.Applicative.Lift ()
+import Control.Monad ( unless, when, zipWithM_ )
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Control.Monad.Trans.Class
-import Control.Monad.Trans.Except
+import Control.Monad.Trans.Class ()
+import Control.Monad.Trans.Except ( ExceptT )
 import Control.Monad.Trans.State (evalStateT, get, gets, put)
-import Data.List
+import Data.List ()
 import Debug.Trace (trace)
-import ProjectData
+import Typechecker.TypeCheckerData
 import ProjectUtils
 import qualified Data.Set as S
-
---TODO: Linjki errorów przy returnach są niech off więc naprawić
 
 typeCheck :: Program -> ExceptT String IO ()
 typeCheck (Program _ stmts) =
@@ -117,14 +115,12 @@ typeCheckDecl pos t (NoInit _ ident) False = do
 typeCheckDecl pos t (Init _ ident expr) isImmutable = do
   env <- get
   dontAllowVoid t
-  put $ setType env ident (t, False)
-  eType <- typeCheckExpr expr
-  ensureTypeMatch pos t eType
   case getType env ident of
     Nothing -> put $ setType env ident (t, isImmutable)
     Just _ -> when (S.member ident (scope env)) $ throwException $ RedeclarationException pos ident
-
-
+  eType <- typeCheckExpr expr
+  ensureTypeMatch pos t eType
+  
 ---------------EXPR---------------------------------------------------------------------------------------
 typeCheckExpr :: Expr -> TypeCheckerState Type
 typeCheckExpr (EVar pos ident) = do

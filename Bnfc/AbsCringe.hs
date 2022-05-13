@@ -8,7 +8,7 @@
 
 -- | The abstract syntax of language cringe.
 
-module AbsCringe where
+module Bnfc.AbsCringe where
 
 import Prelude (Char, Integer, String)
 import qualified Prelude as C
@@ -42,6 +42,7 @@ data Stmt' a
     | While a (Expr' a) (Stmt' a)
     | For a Ident (Expr' a) (Expr' a) (Stmt' a)
     | Print a (Expr' a)
+    | PrintLn a (Expr' a)
     | Break a
     | Continue a
     | SExp a (Expr' a)
@@ -52,11 +53,21 @@ data Item' a = NoInit a Ident | Init a Ident (Expr' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable)
 
 type Type = Type' BNFC'Position
-data Type' a = Int a | Char a | Str a | Bool a | Void a | Fun a
+data Type' a
+    = Int a
+    | Char a
+    | Str a
+    | Bool a
+    | Void a
+    | Fun a [ArgType' a] (Type' a)
+  deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable)
+
+type ArgType = ArgType' BNFC'Position
+data ArgType' a = Val a (Type' a) | Ref a (Type' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable)
 
 type Arg = Arg' BNFC'Position
-data Arg' a = Arg a (Type' a) Ident | RefArg a (Type' a) Ident
+data Arg' a = Arg a (ArgType' a) Ident
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable)
 
 type Expr = Expr' BNFC'Position
@@ -132,6 +143,7 @@ instance HasPosition Stmt where
     While p _ _ -> p
     For p _ _ _ _ -> p
     Print p _ -> p
+    PrintLn p _ -> p
     Break p -> p
     Continue p -> p
     SExp p _ -> p
@@ -148,12 +160,16 @@ instance HasPosition Type where
     Str p -> p
     Bool p -> p
     Void p -> p
-    Fun p -> p
+    Fun p _ _ -> p
+
+instance HasPosition ArgType where
+  hasPosition = \case
+    Val p _ -> p
+    Ref p _ -> p
 
 instance HasPosition Arg where
   hasPosition = \case
     Arg p _ _ -> p
-    RefArg p _ _ -> p
 
 instance HasPosition Expr where
   hasPosition = \case

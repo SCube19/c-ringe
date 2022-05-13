@@ -1,15 +1,13 @@
-import AbsCringe 
-import TypeChecker
-import ProjectUtils
-import ProjectData 
-import Evaluator
-
-import ParCringe (myLexer, pProgram)
+import Bnfc.AbsCringe (Program)
+import Bnfc.LexCringe (tokens)
+import Bnfc.ParCringe (myLexer, pProgram)
+import Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
+import Evaluator.Evaluator (eval)
+import ProjectUtils (exitError)
 import System.Directory.Internal.Prelude (exitFailure, getArgs)
 import System.Exit (exitSuccess)
-import System.IO
-import Control.Monad.Trans.Except
-import LexCringe (tokens)
+import System.IO ()
+import Typechecker.TypeChecker (typeCheck)
 
 tokenize :: String -> ExceptT String IO Program
 tokenize s = case pProgram $ myLexer s of
@@ -34,7 +32,6 @@ main = do
       program <- readFile file
       result <- runExceptT $ runProgram program
       either exitError putStrLn result
-
     _ -> exitFailure
 
 test :: String -> IO ()
