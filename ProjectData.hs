@@ -14,12 +14,14 @@ import Debug.Trace (trace)
 
 -----------EVALUATOR ENVIRONMENT------------------------------------------------------------------------
 type EvaluatorState = StateT EvaluatorS (ExceptT String IO)
+type Environment = M.Map Ident Loc
+type Store = M.Map Loc Value 
 
 data Value =  IntV Integer
             | BoolV Bool
             | StrV String
             | CharV Char
-            | FunV [Arg] Block EvaluatorS
+            | FunV [Arg] Type Block Environment
             | VoidV
 
 instance Show Value where
@@ -27,7 +29,7 @@ instance Show Value where
   show (BoolV v) = map toLower $ show v
   show (StrV v) = v
   show (CharV v) = [v]
-  show f@(FunV args block env) = "???FUNCTION???"
+  show f@(FunV args rType block env) = "???FUNCTION???"
   show VoidV = ""
 
 instance Eq Value where
@@ -61,17 +63,26 @@ castString _ = ""
 type Loc = Integer
 
 data EvaluatorS = EvaluatorS {
-  env :: M.Map Ident Loc,
-  store :: M.Map Loc Value,
-  newloc :: Loc
+  env :: Environment,
+  store :: Store,
+  newloc :: Loc,
+  wasBreak :: Bool,
+  wasContinue :: Bool,
+  returnValue :: Maybe Value
 } deriving Show
 
 initEvaluatorS :: EvaluatorS
 initEvaluatorS = EvaluatorS {
   env = M.empty,
   store = M.empty,
-  newloc = 0
+  newloc = 0,
+  wasBreak = False,
+  wasContinue = False,
+  returnValue = Nothing
 } 
+
+getLoc :: EvaluatorS -> Ident -> Maybe Loc
+getLoc s ident = M.lookup ident (env s)
 
 getValue :: EvaluatorS -> Ident -> Maybe Value
 getValue s ident = M.lookup (fromMaybe (-1) (M.lookup ident (env s))) (store s)
@@ -85,7 +96,20 @@ allocValue :: EvaluatorS -> Ident -> Value -> EvaluatorS
 allocValue s ident value = EvaluatorS {
   env = M.insert ident (newloc s) (env s),
   store = M.insert (newloc s) value (store s),
-  newloc = newloc s + 1
+  newloc = newloc s + 1,
+  wasBreak = wasBreak s,
+  wasContinue = wasContinue s,
+  returnValue = returnValue s
+}
+
+setLoc :: EvaluatorS -> Ident -> Loc -> EvaluatorS
+setLoc s ident loc = EvaluatorS {
+  env = M.insert ident loc (env s),
+  store = store s,
+  newloc = newloc s + 1,
+  wasBreak = wasBreak s,
+  wasContinue = wasContinue s,
+  returnValue = returnValue s
 }
 
 setValues :: EvaluatorS -> [Ident] -> [Value] -> EvaluatorS
@@ -100,14 +124,60 @@ setValue s ident value =
     Just loc -> EvaluatorS {
       env = env s,
       store = M.insert loc value (store s),
-      newloc = newloc s
+      newloc = newloc s,
+      wasBreak = wasBreak s,
+      wasContinue = wasContinue s,
+      returnValue = returnValue s
     }
 
-setEnv :: EvaluatorS -> M.Map Ident Loc -> EvaluatorS
-setEnv st e = EvaluatorS {
+setEnv :: EvaluatorS -> Environment -> EvaluatorS
+setEnv s e = EvaluatorS {
   env = e,
-  store = store st,
-  newloc = newloc st
+  store = store s,
+  newloc = newloc s,
+  wasBreak = wasBreak s,
+  wasContinue = wasContinue s,
+  returnValue = returnValue s
+}
+
+setBreak :: EvaluatorS -> Bool -> EvaluatorS
+setBreak s b = EvaluatorS {
+  env = env s,
+  store = store s,
+  newloc = newloc s,
+  wasBreak = b,
+  wasContinue = wasContinue s,
+  returnValue = returnValue s
+}
+
+setContinue :: EvaluatorS -> Bool -> EvaluatorS
+setContinue s b = EvaluatorS {
+  env = env s,
+  store = store s,
+  newloc = newloc s,
+  wasBreak = wasBreak s,
+  wasContinue = b,
+  returnValue = returnValue s
+}
+
+setReturnValue :: EvaluatorS -> Maybe Value -> EvaluatorS
+setReturnValue s v = EvaluatorS {
+  env = env s,
+  store = store s,
+  newloc = newloc s,
+  wasBreak = wasBreak s,
+  wasContinue = wasContinue s,
+  returnValue = v
+}
+
+resetLoopFlags :: EvaluatorS -> EvaluatorS
+resetLoopFlags s = EvaluatorS {
+  env = env s,
+  store = store s,
+  newloc = newloc s,
+  wasBreak = False,
+  wasContinue = False,
+  returnValue = returnValue s
 }
 
 localEnv :: EvaluatorS -> EvaluatorState () -> EvaluatorState ()

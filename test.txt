@@ -1,3 +1,12 @@
-fun [-> int] f = () -> int {
-    return f();
+int i;
+
+fun [ref int -> void] siurMaker = (ref int i) -> void {
+    inc i;
+    printLn i;
 };
+
+int x = 10;
+
+siurMaker(x);
+
+printLn x;
