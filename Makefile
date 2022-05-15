@@ -3,7 +3,7 @@ all : test
 test : interpreter
 	chmod +x test.sh && ./test.sh
 
-interpreter : Main.hs ProjectData.hs ProjectUtils.hs evaluator bnfc typechecker
+interpreter : Main.hs ProjectUtils.hs evaluator bnfc typechecker
 	ghc Main.hs -o interpreter
 
 bnfc : Bnfc/AbsCringe.hs Bnfc/LexCringe.hs Bnfc/ParCringe.hs
