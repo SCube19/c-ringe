@@ -1,0 +1,15 @@
+int x = 0;
+
+//works for any block, if, while, for function
+{
+    char x = 'k';
+    printLn x;
+}
+
+printLn x;
+
+fun [string -> void] printer = (string x) -> void {
+    printLn x;
+};
+
+printer("some string");

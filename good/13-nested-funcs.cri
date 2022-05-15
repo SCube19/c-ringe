@@ -1,0 +1,8 @@
+fun [int, int -> int] plus = (int a, int b) -> int {
+    fun [int, int -> int] add = (int a, int b) -> int {
+        return a + b;
+    };
+    return add(a, b);
+};
+
+printLn plus(6, 5);

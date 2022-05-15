@@ -1,0 +1,5 @@
+fun [ref int -> void] f = (ref int x) -> void {
+
+};
+
+f(1);

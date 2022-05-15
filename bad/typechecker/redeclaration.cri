@@ -1,0 +1,8 @@
+int x;
+{
+    //does not produce an error as x is in different block
+    int x;
+    inc x;
+}
+
+char x;

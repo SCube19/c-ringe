@@ -1,0 +1,14 @@
+int x = 12345;
+
+fun [-> int] xSumDigits = () -> int {
+
+    int retValue = 0;
+    while(x > 0) {
+        int digit = x mod 10;
+        x = x / 10;
+        retValue = retValue + digit;
+    }
+    return retValue;
+};
+
+printLn xSumDigits();

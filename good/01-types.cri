@@ -1,0 +1,12 @@
+int i;
+char c;
+string s;
+bool b;
+fun [-> void] f = () -> void {
+
+};
+
+printLn i;
+printLn c;
+printLn s;
+printLn b;

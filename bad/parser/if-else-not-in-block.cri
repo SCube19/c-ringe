@@ -1,0 +1,4 @@
+if(x is 0)
+    inc x;
+else
+    print x;

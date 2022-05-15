@@ -104,7 +104,7 @@ typeCheckDecl pos t (NoInit _ ident) True = throwException $ ImmutableNotInitial
 
 typeCheckDecl pos t (NoInit _ ident) False = do
   dontAllowVoid t
-  dontAllowTypeMatch pos rawFun t
+  dontAllowFun t ident 
   env <- get
   case getType env ident of
     Nothing -> put $ setType env ident (t, False)
@@ -259,6 +259,9 @@ dontAllowVoid (Fun _ args _) =
 dontAllowVoid t =
   when (raw t == rawVoid) $ throwException $ VoidNotAllowedException (hasPosition t)
 
+dontAllowFun :: Type -> Ident -> TypeCheckerState ()
+dontAllowFun t ident =
+  when (cleanRaw t == rawFun) $ throwException $ FunctionNotDefinedException (hasPosition t) ident
 ------------------FUNCTION STATE-----------------------------
 functionState :: TypeCheckerS -> [Arg] -> Type -> TypeCheckerS
 functionState s args rType = setTypes (emptyScope $ setExpectedReturnType s $ Just rType)

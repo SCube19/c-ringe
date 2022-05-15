@@ -89,6 +89,7 @@ data TypeCheckerException  =  InvalidTypeExpectedException BNFC'Position Type Ty
                             | ReferenceNotVariableException BNFC'Position
                             | ImmutableNotInitializedException BNFC'Position Ident
                             | ImmutableCannotBeChangedException BNFC'Position Ident
+                            | FunctionNotDefinedException BNFC'Position Ident
                             | WildCardException BNFC'Position
 
 
@@ -137,6 +138,9 @@ instance Show TypeCheckerException where
   show (ImmutableCannotBeChangedException position ident) =
     "Static Error: IMMUTABLE value '" ++ prettyIdent ident ++ "' CANNOT BE ASSIGNED new value at " ++ prettyPosition position
 
+  show (FunctionNotDefinedException position ident) =
+    "Static Error: FUNCTION '" ++ prettyIdent ident ++ "' MUST BE INITIALIZED at " ++ prettyPosition position
+    
   show (WildCardException position) =
     "Static Error: Unknown problem at " ++ prettyPosition position
 

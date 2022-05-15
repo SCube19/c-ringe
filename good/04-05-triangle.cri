@@ -1,0 +1,13 @@
+immutable int h=10;
+int j = h - 1;
+print '\n'; 
+while (j>=0) {
+    int i = h - j;
+    while (i>0) {
+        print '*';
+        dec i;
+    }
+    print '\n';
+    dec j;
+}
+

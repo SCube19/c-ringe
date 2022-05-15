@@ -1,0 +1,18 @@
+int x;
+string s;
+char c;
+bool b;
+fun [-> void] f = () -> void {
+
+};
+
+f = () -> void {
+    print "x";
+};
+
+//c++ style arithmetic with int cast to bool and bool cast to int but 1 > true is static error
+printLn x + 10 * 20 / 2 mod 2;
+printLn "str" + "str2";
+printLn 1 or false and "s" < "str" and true and false or 'c' > c;
+
+f();

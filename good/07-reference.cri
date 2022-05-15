@@ -1,0 +1,10 @@
+fun [ref int -> void] plus10 = (ref int x) -> void {
+    x = x + 10;
+};
+
+int x = 0;
+
+plus10(x);
+
+print x;
+

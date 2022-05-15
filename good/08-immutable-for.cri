@@ -1,0 +1,8 @@
+immutable int h = 10;
+immutable char star = '*';
+print '\n'; 
+
+from i = 0 to h do {
+    from j = i to h do print star;
+    print '\n';
+} 

@@ -1,0 +1,7 @@
+fun [ref int -> void] f = (ref int x) -> void {
+
+};
+
+immutable int z = 10;
+
+f(z);

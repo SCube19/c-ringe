@@ -1,0 +1,5 @@
+fun [fun[int, int -> int], int, int -> int] apply = (fun[int, int -> int] f, int a, int b) -> int {
+    return f(a, b);
+};
+
+print apply((int a, int b) -> int {return a * b;}, 10, 25);

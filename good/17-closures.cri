@@ -1,0 +1,13 @@
+fun [int -> fun [-> int]] counterClosure = (int x) -> fun [-> int] {
+    return () -> int {
+        inc x;
+        return x;
+    };
+};
+
+fun [-> int] counter = counterClosure(0);
+printLn counter();
+printLn counter();
+printLn counter();
+printLn counter();
+printLn counter();
