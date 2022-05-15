@@ -13,8 +13,9 @@ import Evaluator.EvaluatorUtils
 eval :: Program -> ExceptT String IO String
 eval (Program _ stmts) = do
     evalStateT (evalBlock stmts) initEvaluatorS
-    return "\n\nYour cringe code exited with code 0"
-
+    --return "\n\n\x1b[32;1mCringe code execution successful ಠ_ಠ\x1b[0m"
+    return ""
+    
 evalBlock :: [Stmt] -> EvaluatorState ()
 evalBlock stmts = tryIgnoreEval $ do
     env <- get

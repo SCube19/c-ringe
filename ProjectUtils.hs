@@ -13,7 +13,7 @@ import Control.Monad.Trans.State (StateT, get, put)
 ------------------------------GENERAL--------------------------------------------------------
 exitError :: String -> IO ()
 exitError e = do
-    hPutStrLn stderr ("FATAL: " ++ e)
+    hPutStrLn stderr ("FATAL: " ++ e ++ " ¯\\_(ツ)_/¯")
     exitFailure
 
 class Typical a where
